@@ -13,7 +13,6 @@ public class MineButton extends JButton {
 	private ImageIcon icon;
 	private int x;
 	private int y;
-	private boolean isFlagged;
 	private boolean dug= false;
 	
 	private final static ImageIcon cellDug = new ImageIcon(MineButton.class.getResource("/Cell_Dug.png"));
@@ -37,12 +36,11 @@ public class MineButton extends JButton {
 		super();
 		this.setIcon(cellNormal);
 		icon = cellNormal;
-		isFlagged = false;
 		hasMine = false;
 		mineCount = 0;
 		this.setSize(cellNormal.getIconWidth(), cellNormal.getIconHeight());
-		x = i;
-		y = j;
+		x = j;
+		y = i;
 	}
 	
 	//getter methods
@@ -66,6 +64,9 @@ public class MineButton extends JButton {
 	}
 	public boolean isDug(){
 		return dug;
+	}
+	public boolean isFlagged(){
+		return icon.equals(cellFlagged);
 	}
 	
 	//setter methods
@@ -92,7 +93,6 @@ public class MineButton extends JButton {
 			this.setIcon(cellQuestion);
 		} else if(icon.equals(cellQuestion)){
 			this.setIcon(cellFlagged);
-			isFlagged = true;
 		} else {
 			if (hasMine && !(icon.equals(cellFlagged) || icon.equals(cellQuestion))){	
 				this.setIcon(cellMineWrong);
@@ -136,7 +136,6 @@ public class MineButton extends JButton {
 						break;
 				}
 			}
-			
 		}
 		dug = true;
 		return true;

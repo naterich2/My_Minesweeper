@@ -26,7 +26,6 @@ public class Minesweeper extends JFrame implements Runnable {
 	private MineButton[][] board;
 	private int rows;
 	private int cols;
-	private int moves = 0;
 	private Random randnums = new Random();
 	private boolean firstMove = true;
 	private int numFlagged = 0;
@@ -49,6 +48,7 @@ public class Minesweeper extends JFrame implements Runnable {
 	private static final ImageIcon seven = new ImageIcon(Minesweeper.class.getResource("/time7.gif"));
 	private static final ImageIcon eight = new ImageIcon(Minesweeper.class.getResource("/time8.gif"));
 	private static final ImageIcon nine = new ImageIcon(Minesweeper.class.getResource("/time9.gif"));
+	private ImageIcon[] numbers = {zero, one, two, three, four, five, six, seven, eight, nine};
 
 	//Menu bar
 	private JMenuBar menu = new JMenuBar();
@@ -70,9 +70,9 @@ public class Minesweeper extends JFrame implements Runnable {
 	private Timer minesweeperTimer;
 	private JPanel topPanel = new JPanel(new BorderLayout());
 	private JPanel bombsLeft = new JPanel(new BorderLayout());
-	private JLabel bombsHundreds = new JLabel("0"); //add Icon Later
-	private JLabel bombsTens = new JLabel("0"); //add Icon Later
-	private JLabel bombsOnes = new JLabel("0"); //add Icon Later
+	private JLabel bombsHundreds = new JLabel(numbers[(numBombs/100) % 10]); //add Icon Later
+	private JLabel bombsTens = new JLabel(numbers[(numBombs/10) % 10]); //add Icon Later
+	private JLabel bombsOnes = new JLabel(numbers[numBombs % 10]); //add Icon Later
 	private JPanel smileyPanel = new JPanel();
 	private JButton smileyButton = new JButton(smiley);
 	private JPanel time = new JPanel(new BorderLayout());
@@ -92,92 +92,20 @@ public class Minesweeper extends JFrame implements Runnable {
 		int hundreds = 0;
 		int tens = 0;
 		int ones = 0;
+		int time = 0;
 		public void run(){
-			if(ones<9) ones++;
-			else{
-				if(tens<9) tens++;
-				else{
-					hundreds++;
-					tens = 0;
-				}
-				ones = 0;
-			}
-			if((hundreds)>9){
+			time++;
+			if(time<1000){
+				ones = time % 10;
+				tens = (time / 10) % 10;
+				hundreds = (time / 100) % 10;
+				timeHundreds.setIcon(numbers[hundreds]);
+				timeTens.setIcon(numbers[tens]);
+				timeOnes.setIcon(numbers[ones]);
+			} else {
 				timeHundreds.setIcon(negative);
 				timeTens.setIcon(negative);
 				timeOnes.setIcon(negative);
-			}
-			switch(hundreds){
-				case 0: timeHundreds.setIcon(zero);
-					break;
-				case 1: timeHundreds.setIcon(one);
-					break;
-				case 2: timeHundreds.setIcon(two);
-					break;
-				case 3: timeHundreds.setIcon(three);
-					break;
-				case 4: timeHundreds.setIcon(four);
-					break;
-				case 5: timeHundreds.setIcon(five);
-					break;
-				case 6: timeHundreds.setIcon(six);
-					break;
-				case 7: timeHundreds.setIcon(seven);
-					break;
-				case 8: timeHundreds.setIcon(eight);
-					break;
-				case 9: timeHundreds.setIcon(nine);
-					break;
-				default:
-					//timeHundreds.setIcon(negative);
-			}
-			switch(tens){
-				case 0: timeTens.setIcon(zero);
-					break;
-				case 1: timeTens.setIcon(one);
-					break;
-				case 2: timeTens.setIcon(two);
-					break;
-				case 3: timeTens.setIcon(three);
-					break;
-				case 4: timeTens.setIcon(four);
-					break;
-				case 5: timeTens.setIcon(five);
-					break;
-				case 6: timeTens.setIcon(six);
-					break;
-				case 7: timeTens.setIcon(seven);
-					break;
-				case 8: timeTens.setIcon(eight);
-					break;
-				case 9: timeTens.setIcon(nine);
-					break;
-				default:
-					//timeTens.setIcon(negative);
-			}
-			switch(ones){
-				case 0: timeOnes.setIcon(zero);
-					break;
-				case 1: timeOnes.setIcon(one);
-					break;
-				case 2: timeOnes.setIcon(two);
-					break;
-				case 3: timeOnes.setIcon(three);
-					break;
-				case 4: timeOnes.setIcon(four);
-					break;
-				case 5: timeOnes.setIcon(five);
-					break;
-				case 6: timeOnes.setIcon(six);
-					break;
-				case 7: timeOnes.setIcon(seven);
-					break;
-				case 8: timeOnes.setIcon(eight);
-					break;
-				case 9: timeOnes.setIcon(nine);
-					break;
-				default:
-					//timeOnes.setIcon(negative);
 			}	
 		}
 	}
@@ -204,36 +132,45 @@ public class Minesweeper extends JFrame implements Runnable {
 				startNewGame(16,30,99);
 			}
 		});
+		
 		custom.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				int r = 0, c = 0, b = 0;
-				JPanel rows = new JPanel();
-				@SuppressWarnings("unused")
+				JPanel rows = new JPanel(new BorderLayout());
 				JLabel rowsLabel = new JLabel("Rows");
 				JTextField rowsText = new JTextField(2);
+				rows.add(rowsLabel, BorderLayout.WEST);
+				rows.add(rowsText, BorderLayout.EAST);
 				
-				JPanel cols = new JPanel();
-				@SuppressWarnings("unused")
+				JPanel cols = new JPanel(new BorderLayout());
 				JLabel colsLabel = new JLabel("cols");
 				JTextField colsText = new JTextField(2);
+				cols.add(colsLabel, BorderLayout.WEST);
+				cols.add(colsText, BorderLayout.EAST);
 				
-				JPanel bombs = new JPanel();
-				@SuppressWarnings("unused")
+				JPanel bombs = new JPanel(new BorderLayout());
 				JLabel bombsLabel = new JLabel("bombs");
 				JTextField bombsText = new JTextField(2);
-				JPanel[] panels = {rows, cols, bombs};
+				bombs.add(bombsLabel, BorderLayout.WEST);
+				bombs.add(bombsText, BorderLayout.EAST);
+				
+				JPanel panels = new JPanel(new BorderLayout());
+				panels.add(new JLabel("Please enter the number of rows, columns, and bombs."), BorderLayout.NORTH);
+				panels.add(rows, BorderLayout.WEST);
+				panels.add(cols, BorderLayout.CENTER);
+				panels.add(bombs, BorderLayout.EAST);
 				while(true){
 					try{
-						if(JOptionPane.showOptionDialog(null, "Please enter the number of rows, columns, and bombs.",
-								"Custom", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, smiley, panels, panels[1])==JOptionPane.OK_OPTION){
+						if(JOptionPane.showOptionDialog(null, panels,
+									"Custom", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, smiley, null, null) == 0){
 							r = Integer.parseInt(rowsText.getText());
 							c = Integer.parseInt(colsText.getText());
 							b = Integer.parseInt(bombsText.getText());
 							startNewGame(r, c, b);
-						}
+						}	
 						break;
 					} catch(NumberFormatException nfe){
-						JOptionPane.showConfirmDialog(null, "Oops!  Please enter an integer for all three values!", "Oops!", JOptionPane.OK_OPTION);
+						JOptionPane.showConfirmDialog(null, "Oops!  Please enter an integer for all three values!", "Oops!", JOptionPane.DEFAULT_OPTION);
 						continue;
 					}
 				}	
@@ -277,7 +214,6 @@ public class Minesweeper extends JFrame implements Runnable {
 			}
 		});
 		smileyButton.setSize(smiley.getIconWidth(), smiley.getIconHeight());
-		System.out.println(smileyButton.getSize());
 		smileyButton.setBorder(null);
 		smileyPanel.add(smileyButton);
 		bombsLeft.add(bombsHundreds, BorderLayout.WEST);
@@ -299,20 +235,20 @@ public class Minesweeper extends JFrame implements Runnable {
 				board[i][j] = new MineButton(i,j);
 				MineButton temp = board[i][j];
 				temp.setBorder(null);
-				System.out.println(board[i][j].getSize());
-				temp.setOpaque(false);
 				temp.addMouseListener(new MouseAdapter(){
 						public void mousePressed(MouseEvent e){
 							MineButton current = (MineButton)e.getSource();
 							if(firstMove == true){
-								minesweeperTimer.schedule(new MinesweeperTimerTask(), 0, 1000);
+								minesweeperTimer.schedule(new MinesweeperTimerTask(), 0, 10);
 								firstMove = false;
 							}
 							if(!current.isDug()){
-								if(SwingUtilities.isLeftMouseButton(e))
-									cascade(current);
-								else
+								if(SwingUtilities.isLeftMouseButton(e)){
+								//	cascade(current);
+									updateFlagged();
+								} else
 									current.dig(true);
+									updateFlagged();
 							}	
 						}
 					});
@@ -343,6 +279,8 @@ public class Minesweeper extends JFrame implements Runnable {
 		countMines();
 		firstMove = true;
 		resetTimers();
+		this.pack();
+		this.repaint();
 	}
 	private void resetTimers(){
 		minesweeperTimer.cancel();
@@ -357,6 +295,8 @@ public class Minesweeper extends JFrame implements Runnable {
 		countMines();
 		firstMove = true;
 		resetTimers();
+		this.pack();
+		this.repaint();
 	}
 	
 	private void placeMines(){
@@ -367,6 +307,28 @@ public class Minesweeper extends JFrame implements Runnable {
 			int col = randnums.nextInt(cols);
 			board[row][col].setMine(true);
 			bombs--;
+		}
+	}
+	private void updateFlagged(){
+		numFlagged=0;
+		for(int i = 0; i<rows; i++){
+			for(int j= 0; j<cols; j++){
+				if(board[i][j].isFlagged())
+					numFlagged++;
+			}
+		}
+		Integer numLeft = numBombs-numFlagged;
+		if(numLeft<1000 && numLeft>-100){
+			int onesLeft = numLeft % 10;
+			int tensLeft = (numLeft / 10) % 10;
+			int hundredsLeft = (numLeft / 100) % 10;
+			bombsHundreds.setIcon(numbers[hundredsLeft]);
+			bombsTens.setIcon(numbers[tensLeft]);
+			bombsOnes.setIcon(numbers[onesLeft]);
+		} else {
+			bombsHundreds.setIcon(negative);
+			bombsTens.setIcon(negative);
+			bombsOnes.setIcon(negative);
 		}
 	}
 	//add statements to prevent out of bounds on sides != 0, ex board = new MineButton[4][4] prevent board[5][3];
@@ -416,20 +378,24 @@ public class Minesweeper extends JFrame implements Runnable {
 	}
 	/*need to find how to make this work for a single button ie.  b.getX() and b.getY() cant be randomly called*/
 	public void cascade(MineButton b){
+
 		ArrayList<MineButton> queue = new ArrayList<MineButton>();
+		queue.add(b);
 		while(queue.size()>0){
-			for(MineButton button: queue){
-				if(!button.isDug())
-					button.dig(false);
-				queue.remove(button);
+			for(int i = 0; i<queue.size(); i++){
+				//cascade(queue.get(i));
+				queue.remove(i);
 			}
 			if(!(b.getX() == 0 || b.getY() == 0)){
 				for(int x = -1; x<=1; x++){
 					for(int y = -1; y<=1; y++){
-						if(board[b.getX()+x][b.getY()+y].getCount()>0)
+						if(board[b.getX()+x][b.getY()+y].getCount()>0){
 							queue.add(board[b.getX()+x][b.getY()+y]);
+							System.out.println("added one");
+						}	
 					}
 				}
+				continue;
 			} else if(b.getX() == 0 && b.getY()>0) {
 				for(int x = 0; x<=1; x++){
 					for(int y = -1; y<=1; y++){
