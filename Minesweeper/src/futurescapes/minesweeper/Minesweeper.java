@@ -281,6 +281,9 @@ public class Minesweeper extends JFrame implements Runnable {
 		this.pack();
 		this.repaint();
 	}
+	/*private void lose(){
+		
+	}*/
 	private void resetTimers(){
 		minesweeperTimer.cancel();
 		minesweeperTimer = new Timer();
