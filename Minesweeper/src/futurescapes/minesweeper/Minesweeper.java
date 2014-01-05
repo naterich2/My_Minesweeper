@@ -7,12 +7,9 @@ import java.util.Timer;
 
 import futurescapes.minesweeper.MineButton;
 import javax.swing.*;
-import javax.swing.text.html.HTML;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,7 +31,9 @@ public class Minesweeper extends JFrame implements Runnable {
 	
 	//ImageIcons
 	private static final ImageIcon smiley = new ImageIcon(Minesweeper.class.getResource("/Smiley.png"));
+	@SuppressWarnings("unused")
 	private static final ImageIcon smileyDead = new ImageIcon(Minesweeper.class.getResource("/Smiley_Dead.png"));
+	@SuppressWarnings("unused")
 	private static final ImageIcon smileySunglasses = new ImageIcon(Minesweeper.class.getResource("/Smiley_Sunglasses.png"));
 	
 	private static final ImageIcon negative = new ImageIcon(Minesweeper.class.getResource("/time-.gif"));

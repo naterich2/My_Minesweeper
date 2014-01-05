@@ -16,6 +16,7 @@ public class MineButton extends JButton {
 	private boolean dug= false;
 	
 	private final static ImageIcon cellDug = new ImageIcon(MineButton.class.getResource("/Cell_Dug.png"));
+	@SuppressWarnings("unused")
 	private final static ImageIcon cellFlaggedWrong = new ImageIcon(MineButton.class.getResource("/Cell_Flagged_Wrong.png"));
 	private final static ImageIcon cellFlagged = new ImageIcon(MineButton.class.getResource("/Cell_Flagged.png"));
 	private final static ImageIcon cellMineWrong = new ImageIcon(MineButton.class.getResource("/Cell_Mine_Wrong.png"));
