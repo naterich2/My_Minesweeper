@@ -346,14 +346,14 @@ public class Minesweeper extends JFrame implements Runnable {
 		smileyButton.setIcon(smileyDead);
 		minesweeperTimer.cancel();
 		JOptionPane.showConfirmDialog(this, "You Lose!", "You Lose!", JOptionPane.DEFAULT_OPTION);
-		for(int i = 0; i<rows; i++){
+		/*for(int i = 0; i<rows; i++){
 			for(int j = 0; j<cols; j++){
 				if(!board[i][j].isMine() && board[i][j].getIcon().equals(MineButton.cellFlagged))
 					board[i][j].setIcon(MineButton.cellFlaggedWrong);
 				else if(board[i][j].isMine() && !board[i][j].getIcon().equals(MineButton.cellFlagged))
 					board[i][j].setIcon(MineButton.cellMine);
 			}
-		}
+		}*/
 	}
 	/*need to find how to make this work for a single button ie.  b.getX() and b.getY() cant be randomly called*/
 	public void cascade(MineButton b){
@@ -361,12 +361,11 @@ public class Minesweeper extends JFrame implements Runnable {
 		if(b.dig(false))
 			queue.add(b);
 		else{
-			//lose();
+			lose();
 			return;
 		}	
 		while(queue.size()>0){
 			MineButton temp = queue.get(queue.size()-1);
-			int c = temp.countMines();
 			queue.remove(queue.size()-1);
 			temp.dig(false);
 			ArrayList<MineButton> tmpArray = temp.getAdjacentSquares();
