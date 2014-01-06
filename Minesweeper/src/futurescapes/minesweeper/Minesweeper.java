@@ -20,9 +20,9 @@ import java.awt.event.MouseEvent;
 public class Minesweeper extends JFrame implements Runnable {
 	private static final long serialVersionUID = 2L;
 	private int numBombs;
-	private MineButton[][] board;
-	private int rows;
-	private int cols;
+	public MineButton[][] board;
+	public int rows;
+	public int cols;
 	private Random randnums = new Random();
 	private boolean firstMove = true;
 	private int numFlagged = 0;
@@ -231,19 +231,19 @@ public class Minesweeper extends JFrame implements Runnable {
 		mineField.setLayout(new GridLayout(rows,cols));
 		for(int i = 0; i<rows; i++){
 			for(int j = 0; j<cols; j++){
-				board[i][j] = new MineButton(i,j);
+				board[i][j] = new MineButton(i,j, this);
 				MineButton temp = board[i][j];
 				temp.setBorder(null);
 				temp.addMouseListener(new MouseAdapter(){
 						public void mousePressed(MouseEvent e){
 							MineButton current = (MineButton)e.getSource();
 							if(firstMove == true){
-								minesweeperTimer.schedule(new MinesweeperTimerTask(), 0, 10);
+								minesweeperTimer.schedule(new MinesweeperTimerTask(), 0, 100);
 								firstMove = false;
 							}
 							if(!current.isDug()){
 								if(SwingUtilities.isLeftMouseButton(e)){
-								//	cascade(current);
+									cascade(current);
 									updateFlagged();
 								} else
 									current.dig(true);
@@ -273,11 +273,12 @@ public class Minesweeper extends JFrame implements Runnable {
 		numBombs = b;
 		cols = c;
 		rows = r;
+	//	removeBombs();
 		this.addComponentsToPane();
 		placeMines();
-		countMines();
 		firstMove = true;
 		resetTimers();
+		
 		this.pack();
 		this.repaint();
 	}
@@ -291,10 +292,17 @@ public class Minesweeper extends JFrame implements Runnable {
 		timeTens.setIcon(zero);
 		timeOnes.setIcon(zero);
 	}
+	/*(private void removeBombs(){
+		for(int i = 0; i<rows; i++){
+			for(int j = 0; j<cols; j++){
+				board[i][j] = null;
+			}
+		}
+	}*/
 	private void startNewGame(){
+		//removeBombs();
 		this.addComponentsToPane();
 		placeMines();
-		countMines();
 		firstMove = true;
 		resetTimers();
 		this.pack();
@@ -333,100 +341,38 @@ public class Minesweeper extends JFrame implements Runnable {
 			bombsOnes.setIcon(negative);
 		}
 	}
-	//add statements to prevent out of bounds on sides != 0, ex board = new MineButton[4][4] prevent board[5][3];
-	private void countMines(){
-		for(int i = 0; i<rows-1; i++) {
-			for(int j = 0; j<cols-1; j++){
-				int count = 0;
-				if(!(i == 0 || j == 0) && !(i == board.length || j == board[i].length)){
-					for(int x = -1; x<=1; x++){
-						for(int y = -1; y<=1; y++){
-							if(board[i+x][j+y].isMine())
-								count++;
-						}
-					}
-				} else if(i == 0  && j>0) {
-					for(int x = 0; x<=1; x++){
-						for(int y = -1; y<=1; y++){
-							if(board[i+x][j+y].isMine())
-								count++;
-						}
-					}
-				} else if(j==0 && i>0) {
-					for(int x = -1; x<=1; x++){
-						for(int y = 0; y<=1; y++){
-							if(board[i+x][j+y].isMine())
-								count++;
-						}
-					}
-				} else if(i == board.length && j<board[i].length) {
-					for(int x = -1; x<=0; x++){
-						for(int y = -1; y<=1; y++){
-							if(board[i+x][j+y].isMine())
-								count++;
-						}
-					}
-				} else if(j ==board[i].length && i <board.length) {
-					for(int x = -1; x<=1; x++){
-						for(int y = -1; y<=0; y++){
-							if(board[i+x][j+y].isMine())
-								count++;
-						}
-					}
-				}
-			board[i][j].setCount(count);
+	
+	public void lose(){
+		smileyButton.setIcon(smileyDead);
+		minesweeperTimer.cancel();
+		JOptionPane.showConfirmDialog(this, "You Lose!", "You Lose!", JOptionPane.DEFAULT_OPTION);
+		for(int i = 0; i<rows; i++){
+			for(int j = 0; j<cols; j++){
+				if(!board[i][j].isMine() && board[i][j].getIcon().equals(MineButton.cellFlagged))
+					board[i][j].setIcon(MineButton.cellFlaggedWrong);
+				else if(board[i][j].isMine() && !board[i][j].getIcon().equals(MineButton.cellFlagged))
+					board[i][j].setIcon(MineButton.cellMine);
 			}
-		}	
+		}
 	}
 	/*need to find how to make this work for a single button ie.  b.getX() and b.getY() cant be randomly called*/
 	public void cascade(MineButton b){
-
 		ArrayList<MineButton> queue = new ArrayList<MineButton>();
-		queue.add(b);
+		if(b.dig(false))
+			queue.add(b);
+		else{
+			//lose();
+			return;
+		}	
 		while(queue.size()>0){
-			for(int i = 0; i<queue.size(); i++){
-				//cascade(queue.get(i));
-				queue.remove(i);
-			}
-			if(!(b.getX() == 0 || b.getY() == 0)){
-				for(int x = -1; x<=1; x++){
-					for(int y = -1; y<=1; y++){
-						if(board[b.getX()+x][b.getY()+y].getCount()>0){
-							queue.add(board[b.getX()+x][b.getY()+y]);
-							System.out.println("added one");
-						}	
-					}
-				}
-				continue;
-			} else if(b.getX() == 0 && b.getY()>0) {
-				for(int x = 0; x<=1; x++){
-					for(int y = -1; y<=1; y++){
-						if(board[b.getX()+x][b.getY()+y].getCount()>0)
-							queue.add(board[b.getX()+x][b.getY()+y]);
-					}
-				}
-			} else if(b.getY() == 0 && b.getX()>0) {
-				for(int x = -1; x<=1; x++){
-					for(int y = 0; y<=1; y++){
-						if(board[b.getX()+x][b.getY()+y].getCount()>0)
-							queue.add(board[b.getX()+x][b.getY()+y]);
-					}
-				}
-			} else if(b.getX() == board.length && b.getY()<board[b.getX()].length) {
-				for(int x = -1; x<=0; x++){
-					for(int y = -1; y<=1; y++){
-						if(board[b.getX()+x][b.getY()+y].getCount()>0)
-							queue.add(board[b.getX()+x][b.getY()+y]);
-					}
-				}
-			} else if(b.getY() ==board[b.getX()].length && b.getX() <board.length) {
-				for(int x = -1; x<=1; x++){
-					for(int y = -1; y<=0; y++){
-						if(board[b.getX()+x][b.getY()+y].getCount()>0)
-							queue.add(board[b.getX()+x][b.getY()+y]);
-					}
-				}
-			}
-		}
+			MineButton temp = queue.get(queue.size()-1);
+			int c = temp.countMines();
+			queue.remove(queue.size()-1);
+			temp.dig(false);
+			ArrayList<MineButton> tmpArray = temp.getAdjacentSquares();
+			if(temp.countMines() == 0){
+				queue.addAll(tmpArray);
+			}	
+		}	
 	}
 }
