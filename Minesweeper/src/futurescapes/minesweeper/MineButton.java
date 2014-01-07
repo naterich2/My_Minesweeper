@@ -19,7 +19,6 @@ public class MineButton extends JButton {
 	private Minesweeper main;
 	
 	private final static ImageIcon cellDug = new ImageIcon(MineButton.class.getResource("/Cell_Dug.png"));
-	@SuppressWarnings("unused")
 	public final static ImageIcon cellFlaggedWrong = new ImageIcon(MineButton.class.getResource("/Cell_Flagged_Wrong.png"));
 	public final static ImageIcon cellFlagged = new ImageIcon(MineButton.class.getResource("/Cell_Flagged.png"));
 	private final static ImageIcon cellMineWrong = new ImageIcon(MineButton.class.getResource("/Cell_Mine_Wrong.png"));
@@ -111,6 +110,30 @@ public class MineButton extends JButton {
 					adjacentSquares.add(main.board[this.getRow()+x][this.getCol()+y]);
 				}
 			}
+		} else if(this.getRow() == 0 && this.getCol() == main.cols-1){
+			for(int x = 0; x<=1; x++){
+				for(int y = -1 ; y<=0; y++){
+					if(x == 0 && y ==0)
+						continue;
+					adjacentSquares.add(main.board[this.getRow()+x][this.getCol()+y]);
+				}
+			}
+		} else if(this.getRow() == main.rows-1 && this.getCol() == 0) {
+			for(int x = -1; x<=0; x++){
+				for(int y = 0 ; y<=1; y++){
+					if(x == 0 && y ==0)
+						continue;
+					adjacentSquares.add(main.board[this.getRow()+x][this.getCol()+y]);
+				}
+			}
+		} else if (this.getRow()== main.rows-1 && this.getCol() == main.cols-1){
+			for(int x = -1; x<=0; x++){
+				for(int y = -1; y<=0; y++){
+					if(x == 0 && y ==0)
+						continue;
+					adjacentSquares.add(main.board[this.getRow()+x][this.getCol()+y]);
+				}
+			}
 		} else if(this.getRow()==0){
 			for(int x = 0; x<=1; x++){
 				for(int y = -1; y<=1; y++){
@@ -146,6 +169,22 @@ public class MineButton extends JButton {
 		} else if (this.getCol() == main.cols-1) {
 			for(int x = -1; x<=1; x++){
 				for(int y = -1 ; y<=0; y++){
+					if(x == 0 && y ==0)
+						continue;
+					adjacentSquares.add(main.board[this.getRow()+x][this.getCol()+y]);
+				}
+			}
+		} else if(this.getRow() == 0 && this.getCol() == main.cols-1){
+			for(int x = 0; x<=1; x++){
+				for(int y = -1 ; y<=0; y++){
+					if(x == 0 && y ==0)
+						continue;
+					adjacentSquares.add(main.board[this.getRow()+x][this.getCol()+y]);
+				}
+			}
+		} else if(this.getRow() == main.rows-1 && this.getCol() == 0) {
+			for(int x = -1; x<=0; x++){
+				for(int y = 0 ; y<=1; y++){
 					if(x == 0 && y ==0)
 						continue;
 					adjacentSquares.add(main.board[this.getRow()+x][this.getCol()+y]);

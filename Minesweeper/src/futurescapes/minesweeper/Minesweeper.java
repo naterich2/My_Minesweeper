@@ -9,7 +9,7 @@ import futurescapes.minesweeper.MineButton;
 import javax.swing.*;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,7 +31,6 @@ public class Minesweeper extends JFrame implements Runnable {
 	
 	//ImageIcons
 	private static final ImageIcon smiley = new ImageIcon(Minesweeper.class.getResource("/Smiley.png"));
-	@SuppressWarnings("unused")
 	private static final ImageIcon smileyDead = new ImageIcon(Minesweeper.class.getResource("/Smiley_Dead.png"));
 	@SuppressWarnings("unused")
 	private static final ImageIcon smileySunglasses = new ImageIcon(Minesweeper.class.getResource("/Smiley_Sunglasses.png"));
@@ -67,14 +66,14 @@ public class Minesweeper extends JFrame implements Runnable {
 	
 	//Top Panel
 	private Timer minesweeperTimer;
-	private JPanel topPanel = new JPanel(new BorderLayout());
-	private JPanel bombsLeft = new JPanel(new BorderLayout());
+	private JPanel topPanel = new JPanel(new FlowLayout());
+	private JPanel bombsLeft = new JPanel(new FlowLayout());
 	private JLabel bombsHundreds = new JLabel(numbers[(numBombs/100) % 10]); //add Icon Later
 	private JLabel bombsTens = new JLabel(numbers[(numBombs/10) % 10]); //add Icon Later
 	private JLabel bombsOnes = new JLabel(numbers[numBombs % 10]); //add Icon Later
 	private JPanel smileyPanel = new JPanel();
 	private JButton smileyButton = new JButton(smiley);
-	private JPanel time = new JPanel(new BorderLayout());
+	private JPanel time = new JPanel(new FlowLayout());
 	private JLabel timeHundreds = new JLabel(zero); //add Icon Later
 	private JLabel timeTens = new JLabel(zero); //add Icon Later
 	private JLabel timeOnes = new JLabel(zero); //add Icon Later
@@ -153,14 +152,18 @@ public class Minesweeper extends JFrame implements Runnable {
 				bombs.add(bombsLabel, BorderLayout.WEST);
 				bombs.add(bombsText, BorderLayout.EAST);
 				
-				JPanel panels = new JPanel(new BorderLayout());
-				panels.add(new JLabel("Please enter the number of rows, columns, and bombs."), BorderLayout.NORTH);
-				panels.add(rows, BorderLayout.WEST);
-				panels.add(cols, BorderLayout.CENTER);
-				panels.add(bombs, BorderLayout.EAST);
+				JPanel message = new JPanel();
+				JPanel both = new JPanel(new BorderLayout());
+				JPanel enter = new JPanel(new FlowLayout());
+				message.add(new JLabel("Please enter the number of rows, columns, and bombs."), BorderLayout.NORTH);
+				enter.add(rows);
+				enter.add(cols);
+				enter.add(bombs);
+				both.add(message, BorderLayout.NORTH);
+				both.add(enter, BorderLayout.CENTER);
 				while(true){
 					try{
-						if(JOptionPane.showOptionDialog(null, panels,
+						if(JOptionPane.showOptionDialog(null, both,
 									"Custom", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, smiley, null, null) == 0){
 							r = Integer.parseInt(rowsText.getText());
 							c = Integer.parseInt(colsText.getText());
@@ -218,14 +221,14 @@ public class Minesweeper extends JFrame implements Runnable {
 		bombsLeft.add(bombsHundreds, BorderLayout.WEST);
 		bombsLeft.add(bombsTens, BorderLayout.CENTER);
 		bombsLeft.add(bombsOnes, BorderLayout.EAST);
-		time.add(timeHundreds, BorderLayout.WEST);
-		time.add(timeTens, BorderLayout.CENTER);
-		time.add(timeOnes, BorderLayout.EAST);
-		topPanel.add(time, BorderLayout.EAST);
-		topPanel.add(bombsLeft, BorderLayout.WEST);
-		topPanel.add(smileyPanel, BorderLayout.CENTER);
-		topPanel.setBackground(new Color(255,0,0));
+		time.add(timeHundreds);
+		time.add(timeTens);
+		time.add(timeOnes);
+		topPanel.add(time);
+		topPanel.add(smileyPanel);
+		topPanel.add(bombsLeft);
 		main.add(topPanel, BorderLayout.CENTER);
+		main.add(new JSeparator(), BorderLayout.SOUTH);
 		
 		board = new MineButton[rows][cols];
 		mineField.setLayout(new GridLayout(rows,cols));
@@ -238,7 +241,7 @@ public class Minesweeper extends JFrame implements Runnable {
 						public void mousePressed(MouseEvent e){
 							MineButton current = (MineButton)e.getSource();
 							if(firstMove == true){
-								minesweeperTimer.schedule(new MinesweeperTimerTask(), 0, 100);
+								minesweeperTimer.schedule(new MinesweeperTimerTask(), 0, 1000);
 								firstMove = false;
 							}
 							if(!current.isDug()){
@@ -254,19 +257,15 @@ public class Minesweeper extends JFrame implements Runnable {
 				mineField.add(temp);
 				}
 			}
-		mineField.setSize(cols*17,rows*17);
-		main.add(new JSeparator(), BorderLayout.SOUTH);
 		this.add(mineField, BorderLayout.CENTER);
 		this.add(main, BorderLayout.NORTH);
 	}
 	public void run(){
 		rows = 16;
 		cols = 16;
-		numBombs = 10;
+		numBombs = 40;
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.startNewGame();
-		this.pack();
-		this.repaint();
 		this.setVisible(true);
 	}
 	private void startNewGame(int r, int c, int b){
@@ -358,20 +357,26 @@ public class Minesweeper extends JFrame implements Runnable {
 	/*need to find how to make this work for a single button ie.  b.getX() and b.getY() cant be randomly called*/
 	public void cascade(MineButton b){
 		ArrayList<MineButton> queue = new ArrayList<MineButton>();
-		if(b.dig(false))
-			queue.add(b);
-		else{
-			lose();
-			return;
-		}	
+		ArrayList<MineButton> removed = new ArrayList<MineButton>();
+		queue.add(b);
 		while(queue.size()>0){
 			MineButton temp = queue.get(queue.size()-1);
-			queue.remove(queue.size()-1);
-			temp.dig(false);
-			ArrayList<MineButton> tmpArray = temp.getAdjacentSquares();
-			if(temp.countMines() == 0){
-				queue.addAll(tmpArray);
-			}	
+			removed.add(temp);
+			if(temp.dig(false)){
+				ArrayList<MineButton> tmpArray = temp.getAdjacentSquares();
+				System.out.println(temp.countMines());
+				if(temp.countMines() < 1){
+					for(MineButton button: tmpArray){
+						if(!queue.contains(button) && !removed.contains(button))
+							queue.add(button);
+					}
+				}
+			} else {
+				lose();
+				return;
+			}
+			
+			queue.remove(temp);
 		}	
 	}
 }
