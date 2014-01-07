@@ -265,14 +265,28 @@ public class Minesweeper extends JFrame implements Runnable {
 		cols = 16;
 		numBombs = 40;
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.startNewGame();
+		this.addComponentsToPane();
+		placeMines();
+		firstMove = true;
+		resetTimers();
+		this.pack();
+		this.repaint();
 		this.setVisible(true);
 	}
+	
+	private void resetTimers(){
+		minesweeperTimer.cancel();
+		minesweeperTimer = new Timer();
+		timeHundreds.setIcon(zero);
+		timeTens.setIcon(zero);
+		timeOnes.setIcon(zero);
+	}
 	private void startNewGame(int r, int c, int b){
+		resetMinefield();
 		numBombs = b;
 		cols = c;
 		rows = r;
-	//	removeBombs();
+		mineField = new JPanel();
 		this.addComponentsToPane();
 		placeMines();
 		firstMove = true;
@@ -281,25 +295,8 @@ public class Minesweeper extends JFrame implements Runnable {
 		this.pack();
 		this.repaint();
 	}
-	/*private void lose(){
-		
-	}*/
-	private void resetTimers(){
-		minesweeperTimer.cancel();
-		minesweeperTimer = new Timer();
-		timeHundreds.setIcon(zero);
-		timeTens.setIcon(zero);
-		timeOnes.setIcon(zero);
-	}
-	/*(private void removeBombs(){
-		for(int i = 0; i<rows; i++){
-			for(int j = 0; j<cols; j++){
-				board[i][j] = null;
-			}
-		}
-	}*/
 	private void startNewGame(){
-		//removeBombs();
+		resetMinefield();
 		this.addComponentsToPane();
 		placeMines();
 		firstMove = true;
@@ -308,6 +305,16 @@ public class Minesweeper extends JFrame implements Runnable {
 		this.repaint();
 	}
 	
+	private void resetMinefield(){
+		for(int i = 0; i<rows; i++){
+			for(int j = 0; j<cols; j++){
+				mineField.remove(board[i][j]);
+				board[i][j] = null;
+				
+			}
+		}
+		mineField = new JPanel();
+	}
 	private void placeMines(){
 		randnums = new Random();
 		int bombs = numBombs;
@@ -364,7 +371,6 @@ public class Minesweeper extends JFrame implements Runnable {
 			removed.add(temp);
 			if(temp.dig(false)){
 				ArrayList<MineButton> tmpArray = temp.getAdjacentSquares();
-				System.out.println(temp.countMines());
 				if(temp.countMines() < 1){
 					for(MineButton button: tmpArray){
 						if(!queue.contains(button) && !removed.contains(button))
