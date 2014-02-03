@@ -1,5 +1,6 @@
 package futurescapes.minesweeper;
 
+
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.TimerTask;
@@ -9,12 +10,14 @@ import futurescapes.minesweeper.MineButton;
 import javax.swing.*;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 
 
 public class Minesweeper extends JFrame implements Runnable {
@@ -25,16 +28,19 @@ public class Minesweeper extends JFrame implements Runnable {
 	public int cols;
 	private Random randnums = new Random();
 	private boolean firstMove = true;
+	private int timeCount = 0;
 	private int numFlagged = 0;
+	private String difficulty;
+	private Minesweeper_Scores scores;
 	
 	private JPanel main = new JPanel(new BorderLayout());
+	private JTabbedPane tabbedPane = new JTabbedPane();
+	private JPanel topLevel = new JPanel(new BorderLayout());
 	
 	//ImageIcons
 	private static final ImageIcon smiley = new ImageIcon(Minesweeper.class.getResource("/Smiley.png"));
 	private static final ImageIcon smileyDead = new ImageIcon(Minesweeper.class.getResource("/Smiley_Dead.png"));
-	@SuppressWarnings("unused")
 	private static final ImageIcon smileySunglasses = new ImageIcon(Minesweeper.class.getResource("/Smiley_Sunglasses.png"));
-	
 	private static final ImageIcon negative = new ImageIcon(Minesweeper.class.getResource("/time-.gif"));
 	private static final ImageIcon zero = new ImageIcon(Minesweeper.class.getResource("/time0.gif"));
 	private static final ImageIcon one = new ImageIcon(Minesweeper.class.getResource("/time1.gif"));
@@ -52,20 +58,20 @@ public class Minesweeper extends JFrame implements Runnable {
 	private JMenuBar menu = new JMenuBar();
 	private JMenu game = new JMenu("Game");
 	private JMenuItem newGame = new JMenuItem("New");
-	private JSeparator sep1 = new JSeparator();
-	private JMenuItem easy = new JMenuItem("Beginner (8x8, 10 bombs)");
+	private JMenuItem easy = new JMenuItem("Beginner (11x11, 12 bombs)");
 	private JMenuItem medium = new JMenuItem("Intermediate (16x16, 40 bombs)");
 	private JMenuItem expert = new JMenuItem("Expert (16x30, 99 bombs)");
 	private JMenuItem custom = new JMenuItem("Custom");
-	private JSeparator sep2 = new JSeparator();
 	private JMenuItem exit = new JMenuItem("Exit");
 	private JMenu about = new JMenu("About");
 	private JMenuItem aboutButton = new JMenuItem("About");
 	private JMenu help = new JMenu("Help");
 	private JMenuItem helpButton = new JMenuItem("Help");
+	private JSeparator sep2 = new JSeparator();
+	private JSeparator sep1 = new JSeparator();
 	
 	//Top Panel
-	private Timer minesweeperTimer;
+	private Timer minesweeperTimer = new Timer();
 	private JPanel topPanel = new JPanel(new FlowLayout());
 	private JPanel bombsLeft = new JPanel(new FlowLayout());
 	private JLabel bombsHundreds = new JLabel(numbers[(numBombs/100) % 10]); //add Icon Later
@@ -81,22 +87,21 @@ public class Minesweeper extends JFrame implements Runnable {
 	//Minefield
 	private JPanel mineField = new JPanel();
 	
-	public Minesweeper(String name) {
+	public Minesweeper(String name, Minesweeper_Scores s) {
 		super(name);
 		setResizable(false);
-		minesweeperTimer = new Timer();
+		scores = s;
 	}
 	class MinesweeperTimerTask extends TimerTask{
 		int hundreds = 0;
 		int tens = 0;
 		int ones = 0;
-		int time = 0;
 		public void run(){
-			time++;
-			if(time<1000){
-				ones = time % 10;
-				tens = (time / 10) % 10;
-				hundreds = (time / 100) % 10;
+			timeCount++;
+			if(timeCount<1000){
+				ones = timeCount % 10;
+				tens = (timeCount / 10) % 10;
+				hundreds = (timeCount / 100) % 10;
 				timeHundreds.setIcon(numbers[hundreds]);
 				timeTens.setIcon(numbers[tens]);
 				timeOnes.setIcon(numbers[ones]);
@@ -117,17 +122,20 @@ public class Minesweeper extends JFrame implements Runnable {
 		});
 		easy.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				startNewGame(8,8,10);
+				startNewGame(11,11,2);
+				difficulty = "Easy";
 			}
 		});
 		medium.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				startNewGame(16,16,40);
+				startNewGame(16,16,10);
+				difficulty = "Medium";
 			}
 		});
 		expert.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				startNewGame(16,30,99);
+				difficulty = "Hard";
 			}
 		});
 		
@@ -176,6 +184,7 @@ public class Minesweeper extends JFrame implements Runnable {
 						continue;
 					}
 				}	
+				difficulty = "Custom";
 			}
 		});
 		exit.addActionListener(new ActionListener(){
@@ -217,6 +226,7 @@ public class Minesweeper extends JFrame implements Runnable {
 		});
 		smileyButton.setSize(smiley.getIconWidth(), smiley.getIconHeight());
 		smileyButton.setBorder(null);
+		smileyButton.setToolTipText("Start new game");
 		smileyPanel.add(smileyButton);
 		bombsLeft.add(bombsHundreds, BorderLayout.WEST);
 		bombsLeft.add(bombsTens, BorderLayout.CENTER);
@@ -248,17 +258,26 @@ public class Minesweeper extends JFrame implements Runnable {
 								if(SwingUtilities.isLeftMouseButton(e)){
 									cascade(current);
 									updateFlagged();
+									checkForWin();
 								} else
 									current.dig(true);
 									updateFlagged();
+									checkForWin();
 							}	
 						}
 					});
 				mineField.add(temp);
 				}
 			}
-		this.add(mineField, BorderLayout.CENTER);
-		this.add(main, BorderLayout.NORTH);
+		tabbedPane.setTabPlacement(JTabbedPane.BOTTOM);
+		tabbedPane.setBackground(new Color(207,225,223));
+		topLevel.add(mineField, BorderLayout.CENTER);
+		topLevel.add(main, BorderLayout.NORTH);
+		tabbedPane.add("Game",topLevel);
+		scores.setBounds(this.getBounds());
+		tabbedPane.add("scores", scores);
+		this.add(tabbedPane);
+
 	}
 	public void run(){
 		rows = 16;
@@ -267,53 +286,45 @@ public class Minesweeper extends JFrame implements Runnable {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.addComponentsToPane();
 		placeMines();
-		firstMove = true;
-		resetTimers();
+		firstMove = true;	
 		this.pack();
 		this.repaint();
 		this.setVisible(true);
 	}
 	
-	private void resetTimers(){
+	private void resetGame(){
+		//Timers
 		minesweeperTimer.cancel();
 		minesweeperTimer = new Timer();
 		timeHundreds.setIcon(zero);
 		timeTens.setIcon(zero);
 		timeOnes.setIcon(zero);
+
+		//Minefield
+		mineField.removeAll();
+		smileyButton.setIcon(smiley);
+		timeCount = 0;
 	}
 	private void startNewGame(int r, int c, int b){
-		resetMinefield();
+		resetGame();
 		numBombs = b;
 		cols = c;
 		rows = r;
-		mineField = new JPanel();
 		this.addComponentsToPane();
 		placeMines();
+		updateFlagged();
 		firstMove = true;
-		resetTimers();
-		
 		this.pack();
 		this.repaint();
 	}
 	private void startNewGame(){
-		resetMinefield();
+		resetGame();
 		this.addComponentsToPane();
 		placeMines();
+		updateFlagged();
 		firstMove = true;
-		resetTimers();
 		this.pack();
 		this.repaint();
-	}
-	
-	private void resetMinefield(){
-		for(int i = 0; i<rows; i++){
-			for(int j = 0; j<cols; j++){
-				mineField.remove(board[i][j]);
-				board[i][j] = null;
-				
-			}
-		}
-		mineField = new JPanel();
 	}
 	private void placeMines(){
 		randnums = new Random();
@@ -347,19 +358,36 @@ public class Minesweeper extends JFrame implements Runnable {
 			bombsOnes.setIcon(negative);
 		}
 	}
-	
+	public void checkForWin(){
+		boolean won = true;
+		for(int i = 0; i<rows; i++){
+			for(int j = 0; j<cols; j++){
+				if(!board[i][j].isDug() && !board[i][j].isMine())
+					won = false;
+			}
+		}
+		if(won){
+			String winMessage = "You won! \n \n Your time was: "+timeCount;
+			String highScoreMessage = "Cogratulations! Your time "+timeCount+" is a new High Score!";
+			smileyButton.setIcon(smileySunglasses);
+			minesweeperTimer.cancel();
+			if(Minesweeper_Scores.addNewScore(difficulty,timeCount))
+				JOptionPane.showConfirmDialog(this, highScoreMessage, "New High Score!", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, smileySunglasses);
+			else
+				JOptionPane.showConfirmDialog(this, winMessage, "You won!", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, smileySunglasses);
+			startNewGame();
+		}
+	}
 	public void lose(){
 		smileyButton.setIcon(smileyDead);
 		minesweeperTimer.cancel();
 		JOptionPane.showConfirmDialog(this, "You Lose!", "You Lose!", JOptionPane.DEFAULT_OPTION);
-		/*for(int i = 0; i<rows; i++){
+		for(int i = 0; i<rows; i++){
 			for(int j = 0; j<cols; j++){
-				if(!board[i][j].isMine() && board[i][j].getIcon().equals(MineButton.cellFlagged))
-					board[i][j].setIcon(MineButton.cellFlaggedWrong);
-				else if(board[i][j].isMine() && !board[i][j].getIcon().equals(MineButton.cellFlagged))
+				if(board[i][j].isMine())
 					board[i][j].setIcon(MineButton.cellMine);
 			}
-		}*/
+		}	
 	}
 	/*need to find how to make this work for a single button ie.  b.getX() and b.getY() cant be randomly called*/
 	public void cascade(MineButton b){

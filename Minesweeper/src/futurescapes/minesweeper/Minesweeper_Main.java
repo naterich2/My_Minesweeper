@@ -23,7 +23,8 @@ public class Minesweeper_Main {
 	        }
 	        /* Turn off metal's use of bold fonts */
 	       // UIManager.put("swing.boldMetal", Boolean.FALSE);
-		Thread minesweeper = new Thread(new Minesweeper("Minesweeper"));
+
+		Thread minesweeper = new Thread(new Minesweeper("Minesweeper",new Minesweeper_Scores()));
 		minesweeper.start();
 	}
 

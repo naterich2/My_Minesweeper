@@ -205,13 +205,13 @@ public class MineButton extends JButton {
 	
 	//dig a mine
 	public boolean dig(boolean rightClick){
-		if((icon.equals(cellFlagged) && rightClick) || (icon.equals(cellQuestion) && rightClick)){
+		if((((ImageIcon)icon).equals(cellFlagged) && rightClick) || (((ImageIcon)icon).equals(cellQuestion) && rightClick)){
 			this.setIcon(cellNormal);
-		} else if(icon.equals(cellFlagged)){
+		} else if(((ImageIcon)icon).equals(cellFlagged)){
 			this.setIcon(cellQuestion);
-		} else if(icon.equals(cellQuestion)){
+		} else if(((ImageIcon)icon).equals(cellQuestion)){
 			this.setIcon(cellFlagged);
-		} else if(icon.equals(cellNormal)){
+		} else if(((ImageIcon)icon).equals(cellNormal)){
 			if(rightClick) this.setIcon(cellFlagged);
 			else {
 				if (hasMine){	
